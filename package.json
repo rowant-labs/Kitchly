@@ -1,0 +1,49 @@
+{
+  "name": "@kitchly/plugin-kitchen",
+  "version": "1.0.0",
+  "description": "Kitchly - Your AI Kitchen Companion. Voice-first meal planning, recipes, and grocery ordering powered by ElizaOS and Instacart.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "bun test",
+    "lint": "prettier --check src/",
+    "format": "prettier --write src/"
+  },
+  "dependencies": {
+    "@elizaos/core": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "^22.0.0",
+    "prettier": "^3.4.0",
+    "tsup": "^8.3.0",
+    "typescript": "^5.7.0"
+  },
+  "peerDependencies": {
+    "@elizaos/core": "^1.0.0"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rowant-labs/Kitchly"
+  },
+  "keywords": [
+    "elizaos",
+    "plugin",
+    "kitchen",
+    "recipes",
+    "meal-planning",
+    "instacart",
+    "ai-agent",
+    "voice-assistant"
+  ]
+}
