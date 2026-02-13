@@ -174,12 +174,13 @@ export class InstacartService extends Service {
 
     instance.apiKey = String(apiKey);
 
-    const isDev =
-      process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test';
-    instance.baseUrl = isDev ? DEV_BASE_URL : PROD_BASE_URL;
+    // Always use the production Instacart API — the dev endpoint requires
+    // separate credentials.  Set INSTACART_USE_DEV=true to override.
+    const useDev = process.env.INSTACART_USE_DEV === 'true';
+    instance.baseUrl = useDev ? DEV_BASE_URL : PROD_BASE_URL;
 
     elizaLogger.info(
-      `[InstacartService] Starting (env=${isDev ? 'dev' : 'prod'}, url=${instance.baseUrl})`,
+      `[InstacartService] Starting (env=${useDev ? 'dev' : 'prod'}, url=${instance.baseUrl})`,
     );
 
     return instance;
@@ -233,6 +234,7 @@ export class InstacartService extends Service {
     // --- Build request body ---
     const body: InstacartRecipeRequest = {
       title: recipe.title.trim(),
+      image_url: 'https://www.kitchly.app/images/instakitchly.png',
       link_type: 'recipe',
       ingredients,
       instructions,
@@ -292,7 +294,11 @@ export class InstacartService extends Service {
    * every Instacart API request.
    */
   private getLandingPageConfig(): InstacartLandingPageConfig {
-    return { ...AFFILIATE_CONFIG };
+    return {
+      ...AFFILIATE_CONFIG,
+      partner_linkback_url: 'https://www.kitchly.app',
+      enable_pantry_items: true,
+    };
   }
 
   /**

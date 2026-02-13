@@ -4,7 +4,6 @@ import {
   Users,
   ChevronDown,
   ChevronUp,
-  ShoppingCart,
   PlayCircle,
   Check,
   UtensilsCrossed,
@@ -13,6 +12,7 @@ import { cn } from "@/lib/utils";
 import type { ParsedRecipe } from "@/lib/utils";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
+import InstacartButton from "@/components/ui/InstacartButton";
 
 interface RecipeCardProps {
   recipe: ParsedRecipe;
@@ -179,41 +179,16 @@ export default function RecipeCard({
       )}
 
       {/* Action buttons */}
-      <div className="px-5 py-4 bg-warm-50/50 border-t border-warm-100 flex flex-wrap gap-2.5">
-        {/* Order Ingredients (Instacart) */}
-        {recipe.instacartUrl ? (
-          <a
-            href={recipe.instacartUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 min-w-[140px]"
-          >
-            <Button
-              variant="emerald"
-              size="md"
-              className="w-full gap-2 text-sm font-semibold"
-            >
-              <ShoppingCart className="w-4 h-4" />
-              Order Ingredients
-            </Button>
-          </a>
-        ) : (
-          <a
-            href={`https://www.instacart.com/store/search/${encodeURIComponent(recipe.title)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 min-w-[140px]"
-          >
-            <Button
-              variant="emerald"
-              size="md"
-              className="w-full gap-2 text-sm font-semibold"
-            >
-              <ShoppingCart className="w-4 h-4" />
-              Order Ingredients
-            </Button>
-          </a>
-        )}
+      <div className="px-5 py-4 bg-warm-50/50 border-t border-warm-100 flex flex-wrap items-center gap-2.5">
+        {/* Order Ingredients — branded Instacart button */}
+        <InstacartButton
+          href={
+            recipe.instacartUrl ||
+            `https://www.instacart.com/store/search/${encodeURIComponent(recipe.title)}`
+          }
+          label="Order ingredients"
+          className="flex-1 min-w-[180px] justify-center"
+        />
 
         {/* Cook Along */}
         {recipe.instructions.length > 0 && onStartCooking && (

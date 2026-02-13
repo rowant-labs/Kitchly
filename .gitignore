@@ -1,3 +1,10 @@
+# ElizaOS local database
+.eliza/
+
+# Generated build artifacts
+frontend/vite.config.d.ts
+frontend/vite.config.js
+
 # Logs
 logs
 *.log

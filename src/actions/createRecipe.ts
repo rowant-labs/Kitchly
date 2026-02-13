@@ -124,16 +124,17 @@ function formatRecipe(recipe: Recipe, instacartUrl?: string): string {
 
 export const createRecipeAction: Action = {
   name: 'CREATE_RECIPE',
-  similes: ['MAKE_RECIPE', 'GET_RECIPE', 'FIND_RECIPE', 'COOK_SOMETHING'],
+  similes: ['MAKE_RECIPE', 'GET_RECIPE', 'FIND_RECIPE', 'COOK_SOMETHING', 'ORDER_INGREDIENTS', 'BUY_GROCERIES', 'SHOP_INSTACART', 'ORDER_ON_INSTACART'],
   description:
-    'Creates a detailed recipe with ingredients and instructions, and generates a shoppable Instacart link for one-click grocery ordering',
+    'Creates a detailed recipe with ingredients and instructions, and generates a shoppable Instacart link for one-click grocery ordering. Use this whenever the user asks for a recipe OR wants to order/buy/shop for ingredients.',
 
   validate: async (
     runtime: IAgentRuntime,
     _message: Memory,
     _state?: State,
   ): Promise<boolean> => {
-    return !!runtime.getSetting('INSTACART_API_KEY');
+    const key = runtime.getSetting('INSTACART_API_KEY') || process.env.INSTACART_API_KEY;
+    return !!key;
   },
 
   handler: async (
@@ -144,8 +145,6 @@ export const createRecipeAction: Action = {
     callback?: HandlerCallback,
   ): Promise<{ success: boolean; text?: string; data?: Record<string, any>; error?: string }> => {
     try {
-      await callback?.({ text: 'Let me put together that recipe for you...' });
-
       // ------------------------------------------------------------------
       // 1. Use LLM to generate structured recipe
       // ------------------------------------------------------------------
@@ -228,15 +227,21 @@ User request: "${userText}"`;
       });
 
       // ------------------------------------------------------------------
-      // 4. Return formatted recipe
+      // 4. Send Instacart link as a short follow-up
+      //    (The REPLY action already sends the conversational recipe text,
+      //     so we only need to deliver the shoppable link here.)
       // ------------------------------------------------------------------
-      const formattedRecipe = formatRecipe(recipe, instacartUrl);
-
-      await callback?.({ text: formattedRecipe });
+      if (instacartUrl) {
+        await callback?.({
+          text: `**[Order ingredients on Instacart](${instacartUrl})** -- get everything delivered to your door!`,
+        });
+      }
 
       return {
         success: true,
-        text: formattedRecipe,
+        text: instacartUrl
+          ? `Instacart link: ${instacartUrl}`
+          : 'Recipe created (Instacart link unavailable)',
         data: {
           recipe,
           instacartUrl: instacartUrl || null,
@@ -276,6 +281,19 @@ User request: "${userText}"`;
         name: '{{agent}}',
         content: {
           text: 'Great choice! Here is a Pad Thai recipe with everything you need.',
+          actions: ['CREATE_RECIPE'],
+        },
+      },
+    ],
+    [
+      {
+        name: '{{user1}}',
+        content: { text: 'Can I order the ingredients for that recipe?' },
+      },
+      {
+        name: '{{agent}}',
+        content: {
+          text: 'Absolutely! I am generating a shoppable Instacart link for you right now.',
           actions: ['CREATE_RECIPE'],
         },
       },

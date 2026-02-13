@@ -132,16 +132,20 @@ export const planMealsAction: Action = {
     'WEEKLY_PLAN',
     'PLAN_MY_WEEK',
     'MEAL_PREP',
+    'ORDER_GROCERY_LIST',
+    'SHOP_FOR_MEALS',
+    'BUY_MEAL_PLAN_INGREDIENTS',
   ],
   description:
-    'Creates a multi-day meal plan with a consolidated shopping list and generates a shoppable Instacart link for one-click grocery ordering',
+    'Creates a multi-day meal plan with a consolidated shopping list and generates a shoppable Instacart link for one-click grocery ordering. Use this whenever the user asks for a meal plan OR wants to order/shop for a grocery list.',
 
   validate: async (
     runtime: IAgentRuntime,
     _message: Memory,
     _state?: State,
   ): Promise<boolean> => {
-    return !!runtime.getSetting('INSTACART_API_KEY');
+    const key = runtime.getSetting('INSTACART_API_KEY') || process.env.INSTACART_API_KEY;
+    return !!key;
   },
 
   handler: async (
@@ -152,10 +156,6 @@ export const planMealsAction: Action = {
     callback?: HandlerCallback,
   ): Promise<{ success: boolean; text?: string; data?: Record<string, any>; error?: string }> => {
     try {
-      await callback?.({
-        text: 'Planning your meals -- this may take a moment while I put together a great menu...',
-      });
-
       // ------------------------------------------------------------------
       // 1. Gather context (user preferences if available)
       // ------------------------------------------------------------------
@@ -284,15 +284,21 @@ User request: "${userText}"`;
       });
 
       // ------------------------------------------------------------------
-      // 5. Return formatted meal plan
+      // 5. Send Instacart link as a short follow-up
+      //    (The REPLY action already sends the conversational meal plan,
+      //     so we only need to deliver the shoppable link here.)
       // ------------------------------------------------------------------
-      const formattedPlan = formatMealPlan(mealPlan, instacartUrl);
-
-      await callback?.({ text: formattedPlan });
+      if (instacartUrl) {
+        await callback?.({
+          text: `**[Order all ingredients on Instacart](${instacartUrl})** -- one click to get everything delivered!`,
+        });
+      }
 
       return {
         success: true,
-        text: formattedPlan,
+        text: instacartUrl
+          ? `Instacart link: ${instacartUrl}`
+          : 'Meal plan created (Instacart link unavailable)',
         data: {
           mealPlan,
           instacartUrl: instacartUrl || null,
@@ -349,6 +355,32 @@ User request: "${userText}"`;
         name: '{{agent}}',
         content: {
           text: 'Here is a budget-friendly, healthy weekday meal plan!',
+          actions: ['PLAN_MEALS'],
+        },
+      },
+    ],
+    [
+      {
+        name: '{{user1}}',
+        content: { text: "Let's order those ingredients" },
+      },
+      {
+        name: '{{agent}}',
+        content: {
+          text: 'Creating your shoppable Instacart link now -- one click and everything gets delivered!',
+          actions: ['PLAN_MEALS'],
+        },
+      },
+    ],
+    [
+      {
+        name: '{{user1}}',
+        content: { text: 'Send that grocery list to Instacart' },
+      },
+      {
+        name: '{{agent}}',
+        content: {
+          text: 'Generating your Instacart shopping link with the full grocery list!',
           actions: ['PLAN_MEALS'],
         },
       },

@@ -62,6 +62,7 @@ export interface InstacartShoppingListRequest {
  */
 export interface InstacartLandingPageConfig {
   partner_linkback_url?: string;
+  enable_pantry_items?: boolean;
   utm_campaign: string;
   utm_medium: string;
   utm_source: string;

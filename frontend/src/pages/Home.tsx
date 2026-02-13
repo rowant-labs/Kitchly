@@ -21,10 +21,11 @@ export default function Home() {
     retryDelay: 1000,
   });
 
-  // Auto-select the first agent (Kit)
+  // Auto-select Kit (first active agent)
   useEffect(() => {
     if (agentsData?.agents && agentsData.agents.length > 0 && !selectedAgentId) {
-      setSelectedAgentId(agentsData.agents[0].id);
+      const activeAgent = agentsData.agents.find((a) => a.status === "active") || agentsData.agents[0];
+      setSelectedAgentId(activeAgent.id);
     }
   }, [agentsData, selectedAgentId]);
 

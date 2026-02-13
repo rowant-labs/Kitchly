@@ -4,14 +4,13 @@ import {
   VolumeX,
   Copy,
   Check,
-  ShoppingCart,
   ChefHat,
 } from "lucide-react";
 import { cn, renderSimpleMarkdown, extractInstacartLinks } from "@/lib/utils";
 import type { ChatMessage as ChatMessageType } from "@/hooks/useChat";
 import type { ParsedRecipe } from "@/lib/utils";
-import Button from "@/components/ui/Button";
 import RecipeCard from "@/components/recipe/RecipeCard";
+import InstacartButton from "@/components/ui/InstacartButton";
 
 interface ChatMessageProps {
   message: ChatMessageType;
@@ -172,16 +171,11 @@ export default function ChatMessage({
         {standaloneInstacartLinks.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-2">
             {standaloneInstacartLinks.map((link, i) => (
-              <a
+              <InstacartButton
                 key={i}
                 href={link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2.5 bg-kitchly-emerald text-white text-sm font-medium rounded-xl hover:bg-kitchly-emerald-dark transition-colors shadow-md hover:shadow-lg"
-              >
-                <ShoppingCart className="w-4 h-4" />
-                Order on Instacart
-              </a>
+                label="Order on Instacart"
+              />
             ))}
           </div>
         )}
