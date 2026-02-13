@@ -320,7 +320,7 @@ export class InstacartService extends Service {
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
-          Authorization: `Bearer keys.${this.apiKey}`,
+          Authorization: `Bearer ${this.apiKey.startsWith('keys.') ? this.apiKey : `keys.${this.apiKey}`}`,
           'X-Instacart-Client': CLIENT_NAME,
           'X-Instacart-Client-Version': CLIENT_VERSION,
         },
