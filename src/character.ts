@@ -16,8 +16,8 @@ export const kitCharacter = {
   modelProvider: 'anthropic',
 
   plugins: [
-    '@kitchly/plugin-kitchen',
     '@elizaos/plugin-bootstrap',
+    '@elizaos/plugin-sql',
   ],
 
   // ---------------------------------------------------------------------------

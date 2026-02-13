@@ -144,21 +144,12 @@ export class InstacartService extends Service {
   static serviceType = 'instacart';
   capabilityDescription = 'Creates shoppable recipe pages and shopping lists via Instacart';
 
-  private apiKey: string;
-  private baseUrl: string;
+  private apiKey: string = '';
+  private baseUrl: string = PROD_BASE_URL;
 
   // -----------------------------------------------------------------------
   // Construction & lifecycle
   // -----------------------------------------------------------------------
-
-  /**
-   * Private constructor -- callers must use the static `start()` factory.
-   */
-  private constructor(apiKey: string, baseUrl: string) {
-    super();
-    this.apiKey = apiKey;
-    this.baseUrl = baseUrl;
-  }
 
   /**
    * Factory method called by the ElizaOS runtime to initialise the service.
@@ -168,6 +159,8 @@ export class InstacartService extends Service {
    * endpoint based on `NODE_ENV`.
    */
   static async start(runtime: IAgentRuntime): Promise<InstacartService> {
+    const instance = new InstacartService(runtime);
+
     const apiKey =
       runtime.getSetting('INSTACART_API_KEY') ??
       process.env.INSTACART_API_KEY;
@@ -179,15 +172,17 @@ export class InstacartService extends Service {
       );
     }
 
+    instance.apiKey = String(apiKey);
+
     const isDev =
       process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test';
-    const baseUrl = isDev ? DEV_BASE_URL : PROD_BASE_URL;
+    instance.baseUrl = isDev ? DEV_BASE_URL : PROD_BASE_URL;
 
     elizaLogger.info(
-      `[InstacartService] Starting (env=${isDev ? 'dev' : 'prod'}, url=${baseUrl})`,
+      `[InstacartService] Starting (env=${isDev ? 'dev' : 'prod'}, url=${instance.baseUrl})`,
     );
 
-    return new InstacartService(apiKey, baseUrl);
+    return instance;
   }
 
   /**
