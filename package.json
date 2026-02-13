@@ -25,10 +25,10 @@
     "@elizaos/plugin-anthropic": "^1.5.12",
     "@elizaos/plugin-bootstrap": "^1.0.0",
     "@elizaos/plugin-sql": "^1.0.0",
+    "@elizaos/cli": "^1.7.0",
     "@elizaos/server": "^1.7.2"
   },
   "devDependencies": {
-    "@elizaos/cli": "^1.7.0",
     "@types/bun": "latest",
     "@types/node": "^22.0.0",
     "prettier": "^3.4.0",
