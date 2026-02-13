@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from "react";
-import { sendMessage, type AgentResponse } from "@/lib/api";
+import { sendMessageStream, sendMessage, type AgentResponse } from "@/lib/api";
 import {
   generateMessageId,
   parseRecipeFromText,
@@ -15,6 +15,7 @@ export interface ChatMessage {
   recipe?: ParsedRecipe;
   instacartLinks?: string[];
   attachments?: AgentResponse["attachments"];
+  isStreaming?: boolean;
 }
 
 interface UseChatOptions {
@@ -35,12 +36,18 @@ export function useChat({ agentId }: UseChatOptions): UseChatReturn {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const streamingIdRef = useRef<string | null>(null);
 
   const sendChatMessage = useCallback(
     async (text: string, file?: File) => {
       if (!text.trim() && !file) return;
 
       setError(null);
+
+      // Cancel any in-flight request
+      abortControllerRef.current?.abort();
+      const abortController = new AbortController();
+      abortControllerRef.current = abortController;
 
       // Add user message
       const userMessage: ChatMessage = {
@@ -50,59 +57,85 @@ export function useChat({ agentId }: UseChatOptions): UseChatReturn {
         timestamp: new Date(),
       };
 
-      setMessages((prev) => [...prev, userMessage]);
+      // Create a placeholder streaming message
+      const streamingId = generateMessageId();
+      streamingIdRef.current = streamingId;
+
+      const streamingMessage: ChatMessage = {
+        id: streamingId,
+        role: "agent",
+        content: "",
+        timestamp: new Date(),
+        isStreaming: true,
+      };
+
+      setMessages((prev) => [...prev, userMessage, streamingMessage]);
       setIsLoading(true);
 
       try {
-        const responses = await sendMessage(agentId, text.trim(), file);
+        let streamedText = "";
 
-        // Process each response from the agent
-        const agentMessages: ChatMessage[] = responses.map((resp) => {
-          const responseText = resp.text || "";
-          const recipe = parseRecipeFromText(responseText);
-          const instacartLinks = extractInstacartLinks(responseText);
+        const responses = await sendMessageStream(
+          agentId,
+          text.trim(),
+          (chunk) => {
+            streamedText += chunk;
+            // Update the streaming message in-place
+            setMessages((prev) =>
+              prev.map((msg) =>
+                msg.id === streamingId
+                  ? { ...msg, content: streamedText }
+                  : msg,
+              ),
+            );
+          },
+          abortController.signal,
+        );
 
-          return {
-            id: generateMessageId(),
-            role: "agent" as const,
-            content: responseText,
-            timestamp: new Date(),
-            recipe: recipe || undefined,
-            instacartLinks:
-              instacartLinks.length > 0 ? instacartLinks : undefined,
-            attachments: resp.attachments,
-          };
-        });
+        // Finalize: replace streaming message with final parsed version
+        const finalText = responses[0]?.text || streamedText || "";
+        const recipe = parseRecipeFromText(finalText);
+        const instacartLinks = extractInstacartLinks(finalText);
 
-        if (agentMessages.length === 0) {
-          // If no response text, add a fallback
-          agentMessages.push({
-            id: generateMessageId(),
-            role: "agent",
-            content:
-              "I'm here to help! Could you tell me more about what you'd like to cook?",
-            timestamp: new Date(),
-          });
-        }
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === streamingId
+              ? {
+                  ...msg,
+                  content: finalText,
+                  isStreaming: false,
+                  recipe: recipe || undefined,
+                  instacartLinks:
+                    instacartLinks.length > 0 ? instacartLinks : undefined,
+                }
+              : msg,
+          ),
+        );
 
-        setMessages((prev) => [...prev, ...agentMessages]);
+        streamingIdRef.current = null;
       } catch (err) {
+        if (abortController.signal.aborted) return;
+
         const message =
           err instanceof Error ? err.message : "Failed to send message";
         setError(message);
         console.error("Chat error:", err);
 
-        // Add error message from agent
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: generateMessageId(),
-            role: "agent",
-            content:
-              "Sorry, I'm having trouble connecting right now. Please try again in a moment!",
-            timestamp: new Date(),
-          },
-        ]);
+        // Replace streaming placeholder with error message
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === streamingId
+              ? {
+                  ...msg,
+                  content:
+                    "Sorry, I'm having trouble connecting right now. Please try again in a moment!",
+                  isStreaming: false,
+                }
+              : msg,
+          ),
+        );
+
+        streamingIdRef.current = null;
       } finally {
         setIsLoading(false);
       }
@@ -111,6 +144,7 @@ export function useChat({ agentId }: UseChatOptions): UseChatReturn {
   );
 
   const clearMessages = useCallback(() => {
+    abortControllerRef.current?.abort();
     setMessages([]);
     setError(null);
   }, []);

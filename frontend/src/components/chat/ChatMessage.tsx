@@ -145,20 +145,25 @@ export default function ChatMessage({
             <p>{message.content}</p>
           ) : (
             <>
-              {renderedContent && (
+              {renderedContent ? (
                 <div
                   className="prose-sm"
                   dangerouslySetInnerHTML={{
                     __html: renderSimpleMarkdown(renderedContent),
                   }}
                 />
+              ) : message.isStreaming ? (
+                <span className="inline-block w-2 h-4 bg-kitchly-orange/60 animate-pulse rounded-sm" />
+              ) : null}
+              {message.isStreaming && renderedContent && (
+                <span className="inline-block w-1.5 h-4 bg-kitchly-orange/60 animate-pulse rounded-sm ml-0.5 align-text-bottom" />
               )}
             </>
           )}
         </div>
 
-        {/* Recipe Card */}
-        {message.recipe && (
+        {/* Recipe Card (only after streaming completes) */}
+        {message.recipe && !message.isStreaming && (
           <div className="mt-3 animate-bounce-subtle">
             <RecipeCard
               recipe={message.recipe}
@@ -167,8 +172,8 @@ export default function ChatMessage({
           </div>
         )}
 
-        {/* Standalone Instacart Links */}
-        {standaloneInstacartLinks.length > 0 && (
+        {/* Standalone Instacart Links (only after streaming completes) */}
+        {standaloneInstacartLinks.length > 0 && !message.isStreaming && (
           <div className="mt-2 flex flex-wrap gap-2">
             {standaloneInstacartLinks.map((link, i) => (
               <InstacartButton
@@ -180,8 +185,8 @@ export default function ChatMessage({
           </div>
         )}
 
-        {/* Action buttons for agent messages */}
-        {!isUser && (
+        {/* Action buttons for agent messages (hidden while streaming) */}
+        {!isUser && !message.isStreaming && (
           <div className="flex items-center gap-1 mt-1.5 opacity-0 group-hover:opacity-100 hover:opacity-100 transition-opacity duration-200"
                style={{ opacity: 1 }}
           >

@@ -58,8 +58,145 @@ function getChannelId(agentId: string): string {
 }
 
 /**
+ * Send a message via SSE transport for streaming responses.
+ * The POST response itself is an event stream.
+ */
+export async function sendMessageStream(
+  agentId: string,
+  text: string,
+  onChunk: (chunk: string) => void,
+  signal?: AbortSignal,
+): Promise<AgentResponse[]> {
+  const userId = getUserId();
+  const channelId = getChannelId(agentId);
+
+  const response = await fetch(
+    `${BASE_URL}/api/messaging/channels/${channelId}/messages`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        author_id: userId,
+        content: text,
+        message_server_id: MESSAGE_SERVER_ID,
+        source_type: "direct",
+        transport: "sse",
+        metadata: {
+          isDm: true,
+          targetUserId: agentId,
+        },
+      }),
+      signal,
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to send message: ${response.statusText}`);
+  }
+
+  const contentType = response.headers.get("content-type") || "";
+
+  // If server didn't return SSE, fall back to JSON
+  if (!contentType.includes("text/event-stream")) {
+    const data = await response.json();
+    // HTTP transport puts response in agentResponse; websocket transport has no response inline
+    const agentText =
+      data.agentResponse?.text ||
+      data.agentResponse?.content?.text ||
+      data.text ||
+      "";
+    if (agentText) {
+      onChunk(agentText);
+      return [{ text: agentText }];
+    }
+    // Websocket transport — no inline response; return empty so useChat shows error
+    console.warn("[sendMessageStream] Server returned JSON instead of SSE. Transport may not be supported.", data);
+    return [{ text: "" }];
+  }
+
+  // Parse SSE event stream
+  const reader = response.body?.getReader();
+  if (!reader) throw new Error("No response body");
+
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let fullText = "";
+  const finalResponses: AgentResponse[] = [];
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+
+    // Parse SSE events from buffer (format: "event: type\ndata: {...}\n\n")
+    const events = buffer.split("\n\n");
+    buffer = events.pop() || ""; // Keep incomplete event in buffer
+
+    for (const event of events) {
+      if (!event.trim()) continue;
+
+      let eventType = "";
+      let eventData = "";
+
+      for (const line of event.split("\n")) {
+        if (line.startsWith("event: ")) {
+          eventType = line.slice(7).trim();
+        } else if (line.startsWith("data: ")) {
+          eventData = line.slice(6);
+        }
+      }
+
+      if (!eventData) continue;
+
+      try {
+        const parsed = JSON.parse(eventData);
+
+        switch (eventType) {
+          case "chunk": {
+            const chunk = parsed.chunk || "";
+            if (chunk) {
+              fullText += chunk;
+              onChunk(chunk);
+            }
+            break;
+          }
+          case "done": {
+            const doneText = parsed.text || parsed.content?.text || fullText;
+            // If no chunks were streamed, simulate typing word-by-word
+            if (!fullText && doneText) {
+              const words = doneText.split(/(\s+)/);
+              for (const word of words) {
+                fullText += word;
+                onChunk(word);
+                await new Promise((r) => setTimeout(r, 12));
+              }
+            }
+            finalResponses.push({ text: doneText });
+            break;
+          }
+          case "error": {
+            throw new Error(parsed.error || "Stream error");
+          }
+        }
+      } catch (e) {
+        if (e instanceof SyntaxError) continue; // Skip unparseable data
+        throw e;
+      }
+    }
+  }
+
+  // If we got chunks but no "done" event, use accumulated text
+  if (finalResponses.length === 0 && fullText) {
+    finalResponses.push({ text: fullText });
+  }
+
+  return finalResponses;
+}
+
+/**
  * Send a message to an agent via the ElizaOS channel messaging API.
- * Then poll for the agent's response.
+ * Then poll for the agent's response. (Non-streaming fallback)
  */
 export async function sendMessage(
   agentId: string,

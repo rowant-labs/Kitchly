@@ -1,6 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
 import {
-  ChefHat,
   CalendarDays,
   Utensils,
   Drumstick,
@@ -13,6 +12,7 @@ import type { ParsedRecipe } from "@/lib/utils";
 import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
 import CookingMode from "@/components/cooking/CookingMode";
+import kitIcon from "@/assets/images/k.svg";
 
 interface ChatViewProps {
   agentId: string;
@@ -134,8 +134,9 @@ export default function ChatView({ agentId }: ChatViewProps) {
                 />
               ))}
 
-              {/* Loading indicator */}
-              {isLoading && <TypingIndicator />}
+              {/* Loading indicator — hidden when a streaming message is already visible */}
+              {isLoading &&
+                !messages.some((m) => m.isStreaming) && <TypingIndicator />}
 
               <div ref={messagesEndRef} />
             </div>
@@ -175,8 +176,8 @@ function EmptyState({
   return (
     <div className="flex flex-col items-center justify-center h-full max-w-lg mx-auto px-4 py-8">
       {/* Avatar */}
-      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-kitchly-orange to-kitchly-orange-dark flex items-center justify-center shadow-warm mb-6 animate-bounce-subtle">
-        <ChefHat className="w-8 h-8 text-white" />
+      <div className="w-16 h-16 rounded-2xl bg-white border border-warm-200 flex items-center justify-center shadow-soft mb-6 animate-bounce-subtle overflow-hidden">
+        <img src={kitIcon} alt="Kit" className="w-10 h-10" />
       </div>
 
       {/* Welcome text */}
@@ -225,8 +226,8 @@ function EmptyState({
 function TypingIndicator() {
   return (
     <div className="flex gap-3 animate-fade-in">
-      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-kitchly-orange to-kitchly-orange-dark flex items-center justify-center shadow-warm">
-        <ChefHat className="w-4 h-4 text-white" />
+      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-white border border-warm-200 flex items-center justify-center shadow-soft overflow-hidden">
+        <img src={kitIcon} alt="Kit" className="w-5 h-5" />
       </div>
       <div className="bg-white border border-warm-200 rounded-2xl rounded-bl-md px-4 py-3 shadow-soft">
         <div className="flex items-center gap-1.5">
