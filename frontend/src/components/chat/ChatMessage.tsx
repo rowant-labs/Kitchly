@@ -4,13 +4,13 @@ import {
   VolumeX,
   Copy,
   Check,
-  ChefHat,
 } from "lucide-react";
 import { cn, renderSimpleMarkdown, extractInstacartLinks } from "@/lib/utils";
 import type { ChatMessage as ChatMessageType } from "@/hooks/useChat";
 import type { ParsedRecipe } from "@/lib/utils";
 import RecipeCard from "@/components/recipe/RecipeCard";
 import InstacartButton from "@/components/ui/InstacartButton";
+import kitIcon from "@/assets/images/k.svg";
 
 interface ChatMessageProps {
   message: ChatMessageType;
@@ -121,8 +121,8 @@ export default function ChatMessage({
     >
       {/* Avatar */}
       {!isUser && (
-        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-kitchly-orange to-kitchly-orange-dark flex items-center justify-center shadow-warm mt-1">
-          <ChefHat className="w-4 h-4 text-white" />
+        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-white border border-warm-200 flex items-center justify-center shadow-soft mt-1 overflow-hidden">
+          <img src={kitIcon} alt="Kit" className="w-5 h-5" />
         </div>
       )}
 

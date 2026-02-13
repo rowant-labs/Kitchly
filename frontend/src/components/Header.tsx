@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { Settings, ChefHat, Trash2, X } from "lucide-react";
+import { Settings, Trash2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import kitchlyWordmark from "@/assets/images/kitchly-wordmark.svg";
 
 interface HeaderProps {
   onClearChat?: () => void;
@@ -14,13 +15,12 @@ export default function Header({ onClearChat }: HeaderProps) {
       <header className="flex-shrink-0 bg-white/80 backdrop-blur-lg border-b border-warm-200 px-4 sm:px-6 pt-safe">
         <div className="max-w-3xl mx-auto flex items-center justify-between h-14">
           {/* Logo */}
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-kitchly-orange to-kitchly-orange-dark flex items-center justify-center shadow-warm">
-              <ChefHat className="w-4.5 h-4.5 text-white" />
-            </div>
-            <span className="text-lg font-bold text-warm-800 tracking-tight">
-              Kitchly
-            </span>
+          <div className="flex items-center">
+            <img
+              src={kitchlyWordmark}
+              alt="Kitchly"
+              className="h-7"
+            />
           </div>
 
           {/* Agent status + Settings */}

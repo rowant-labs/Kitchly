@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, ChefHat, RefreshCw } from "lucide-react";
+import { Loader2, RefreshCw } from "lucide-react";
 import Header from "@/components/Header";
 import ChatView from "@/components/chat/ChatView";
 import Button from "@/components/ui/Button";
 import { getAgents, type Agent } from "@/lib/api";
+import kitIcon from "@/assets/images/k.svg";
 
 export default function Home() {
   const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
@@ -39,8 +40,8 @@ export default function Home() {
         <Header />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-kitchly-orange to-kitchly-orange-dark flex items-center justify-center shadow-warm mx-auto mb-4 animate-pulse">
-              <ChefHat className="w-7 h-7 text-white" />
+            <div className="w-14 h-14 rounded-2xl bg-white border border-warm-200 flex items-center justify-center shadow-soft mx-auto mb-4 animate-pulse">
+              <img src={kitIcon} alt="Kit" className="w-9 h-9" />
             </div>
             <Loader2 className="w-6 h-6 animate-spin text-kitchly-orange mx-auto mb-3" />
             <p className="text-warm-500 text-sm">Warming up the kitchen...</p>
@@ -56,8 +57,8 @@ export default function Home() {
         <Header />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center max-w-sm mx-auto px-6">
-            <div className="w-14 h-14 rounded-2xl bg-warm-200 flex items-center justify-center mx-auto mb-4">
-              <ChefHat className="w-7 h-7 text-warm-400" />
+            <div className="w-14 h-14 rounded-2xl bg-warm-200 flex items-center justify-center mx-auto mb-4 opacity-50">
+              <img src={kitIcon} alt="Kit" className="w-9 h-9" />
             </div>
             <h2 className="text-lg font-semibold text-warm-700 mb-2">
               Kitchen's Closed
