@@ -4,6 +4,7 @@ import {
   Utensils,
   Drumstick,
   Flame,
+  ShoppingCart,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useChat, type ChatMessage as ChatMessageType } from "@/hooks/useChat";
@@ -152,10 +153,18 @@ function EmptyState({
       <h2 className="text-2xl font-bold text-warm-800 text-center mb-2">
         Hey! I'm Kit
       </h2>
-      <p className="text-warm-500 text-center text-[15px] mb-8 leading-relaxed">
-        Your kitchen companion. Ask me for recipes, meal plans, cooking tips, or
-        let me guide you through cooking step by step!
+      <p className="text-warm-500 text-center text-[15px] mb-4 leading-relaxed">
+        Your meal planning sidekick. Ask me for recipe ideas, weekly meal plans,
+        or help figuring out what to cook tonight!
       </p>
+
+      {/* Instacart CTA */}
+      <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-orange-50 border border-orange-100 mb-8">
+        <ShoppingCart className="w-4 h-4 text-kitchly-orange flex-shrink-0" />
+        <p className="text-sm font-semibold text-warm-700">
+          Order ingredients from any recipe or meal plan with one tap to Instacart.
+        </p>
+      </div>
 
       {/* Suggestion chips */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full">
