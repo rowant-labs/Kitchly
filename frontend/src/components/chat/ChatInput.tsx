@@ -110,33 +110,39 @@ export default function ChatInput({
         />
 
         {/* Text input area */}
-        <div className="flex-1 relative">
+        <div
+          className={cn(
+            "flex-1 flex items-end gap-2",
+            "bg-cream-100 border border-warm-200 rounded-2xl",
+            "px-4 py-2",
+            "transition-all duration-200 ease-out",
+            "focus-within:ring-2 focus-within:ring-kitchly-orange/20 focus-within:border-kitchly-orange/50",
+            disabled && "opacity-50",
+          )}
+        >
           <textarea
             ref={inputRef}
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ask Kit anything about cooking..."
+            placeholder="Ask about recipes, meal plans, or ingredients..."
             disabled={disabled}
             rows={1}
             className={cn(
-              "w-full bg-cream-100 border border-warm-200 rounded-2xl",
-              "px-4 py-3 pr-12 text-[15px] text-warm-800",
+              "flex-1 bg-transparent py-1 text-[15px] text-warm-800",
               "placeholder:text-warm-400",
-              "transition-all duration-200 ease-out",
-              "focus:outline-none focus:ring-2 focus:ring-kitchly-orange/20 focus:border-kitchly-orange/50",
+              "focus:outline-none",
               "resize-none scrollbar-hidden",
-              "disabled:opacity-50",
             )}
           />
 
-          {/* Send button - inside the input */}
+          {/* Send button */}
           {hasContent && (
             <button
               onClick={handleSend}
               disabled={disabled || isLoading || (!text.trim() && !attachedFile)}
               className={cn(
-                "absolute right-2 bottom-2 p-2 rounded-xl",
+                "flex-shrink-0 p-2 rounded-xl",
                 "bg-kitchly-orange text-white",
                 "hover:bg-kitchly-orange-dark",
                 "transition-all duration-200",

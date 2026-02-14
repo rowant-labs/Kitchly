@@ -35,8 +35,8 @@ const QUICK_SUGGESTIONS = [
   },
   {
     icon: Flame,
-    label: "Cook-along mode",
-    message: "I want to cook something right now. Give me a recipe and guide me through it step by step!",
+    label: "Give me 10 dinner ideas",
+    message: "Give me 10 dinner ideas for this week",
   },
 ];
 
