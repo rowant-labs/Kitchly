@@ -7,7 +7,6 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useChat, type ChatMessage as ChatMessageType } from "@/hooks/useChat";
-import { useVoice } from "@/hooks/useVoice";
 import type { ParsedRecipe } from "@/lib/utils";
 import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
@@ -43,32 +42,14 @@ const QUICK_SUGGESTIONS = [
 
 export default function ChatView({ agentId }: ChatViewProps) {
   const { messages, sendChatMessage, isLoading } = useChat({ agentId });
-  const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(
-    null,
-  );
   const [cookingRecipe, setCookingRecipe] = useState<ParsedRecipe | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
-  const handleTranscript = (text: string) => {
-    if (text.trim()) {
-      sendChatMessage(text);
-    }
-  };
-
-  const {
-    isListening,
-    isSpeaking,
-    isProcessing,
-    startListening,
-    stopListening,
-    speak,
-    stopSpeaking,
-  } = useVoice({
-    agentId,
-    onTranscript: handleTranscript,
-  });
+  // TODO: Re-enable voice when ElevenLabs integration is fixed
+  // const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
+  // const { isListening, isSpeaking, isProcessing, startListening, stopListening, speak, stopSpeaking } = useVoice({ agentId, onTranscript: handleTranscript });
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -81,15 +62,15 @@ export default function ChatView({ agentId }: ChatViewProps) {
     sendChatMessage(text, file);
   };
 
-  const handleSpeak = (messageId: string, text: string) => {
-    setSpeakingMessageId(messageId);
-    speak(text).finally(() => setSpeakingMessageId(null));
-  };
-
-  const handleStopSpeaking = () => {
-    stopSpeaking();
-    setSpeakingMessageId(null);
-  };
+  // TODO: Re-enable voice when ElevenLabs integration is fixed
+  // const handleSpeak = (messageId: string, text: string) => {
+  //   setSpeakingMessageId(messageId);
+  //   speak(text).finally(() => setSpeakingMessageId(null));
+  // };
+  // const handleStopSpeaking = () => {
+  //   stopSpeaking();
+  //   setSpeakingMessageId(null);
+  // };
 
   const handleStartCooking = (recipe: ParsedRecipe) => {
     setCookingRecipe(recipe);
@@ -121,15 +102,6 @@ export default function ChatView({ agentId }: ChatViewProps) {
                 <ChatMessage
                   key={message.id}
                   message={message}
-                  onSpeak={
-                    message.role === "agent"
-                      ? (text) => handleSpeak(message.id, text)
-                      : undefined
-                  }
-                  isSpeaking={
-                    isSpeaking && speakingMessageId === message.id
-                  }
-                  onStopSpeaking={handleStopSpeaking}
                   onStartCooking={handleStartCooking}
                 />
               ))}
@@ -147,10 +119,6 @@ export default function ChatView({ agentId }: ChatViewProps) {
         <div className="flex-shrink-0 max-w-3xl mx-auto w-full">
           <ChatInput
             onSendMessage={handleSendMessage}
-            onStartListening={startListening}
-            onStopListening={stopListening}
-            isListening={isListening}
-            isProcessing={isProcessing}
             isLoading={isLoading}
           />
         </div>
@@ -215,10 +183,7 @@ function EmptyState({
         ))}
       </div>
 
-      {/* Voice hint */}
-      <p className="mt-6 text-xs text-warm-400 text-center">
-        Tap the microphone to talk to Kit hands-free
-      </p>
+      {/* TODO: Re-enable voice hint when ElevenLabs integration is fixed */}
     </div>
   );
 }

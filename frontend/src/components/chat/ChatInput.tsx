@@ -1,23 +1,20 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Send, Mic, MicOff, Paperclip, Loader2 } from "lucide-react";
+import { Send, Paperclip, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ChatInputProps {
   onSendMessage: (text: string, file?: File) => void;
-  onStartListening: () => void;
-  onStopListening: () => void;
-  isListening: boolean;
-  isProcessing: boolean;
   isLoading: boolean;
   disabled?: boolean;
+  // TODO: Re-enable voice input when ElevenLabs integration is fixed
+  // onStartListening: () => void;
+  // onStopListening: () => void;
+  // isListening: boolean;
+  // isProcessing: boolean;
 }
 
 export default function ChatInput({
   onSendMessage,
-  onStartListening,
-  onStopListening,
-  isListening,
-  isProcessing,
   isLoading,
   disabled = false,
 }: ChatInputProps) {
@@ -28,10 +25,10 @@ export default function ChatInput({
 
   // Auto-focus on mount
   useEffect(() => {
-    if (inputRef.current && !isListening) {
+    if (inputRef.current) {
       inputRef.current.focus();
     }
-  }, [isListening]);
+  }, []);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -57,14 +54,6 @@ export default function ChatInput({
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
-    }
-  };
-
-  const handleMicToggle = () => {
-    if (isListening) {
-      onStopListening();
-    } else {
-      onStartListening();
     }
   };
 
@@ -127,14 +116,8 @@ export default function ChatInput({
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder={
-              isListening
-                ? "Listening..."
-                : isProcessing
-                  ? "Transcribing..."
-                  : "Ask Kit anything about cooking..."
-            }
-            disabled={disabled || isListening || isProcessing}
+            placeholder="Ask Kit anything about cooking..."
+            disabled={disabled}
             rows={1}
             className={cn(
               "w-full bg-cream-100 border border-warm-200 rounded-2xl",
@@ -144,7 +127,6 @@ export default function ChatInput({
               "focus:outline-none focus:ring-2 focus:ring-kitchly-orange/20 focus:border-kitchly-orange/50",
               "resize-none scrollbar-hidden",
               "disabled:opacity-50",
-              isListening && "border-kitchly-orange/50 bg-orange-50/50",
             )}
           />
 
@@ -171,30 +153,7 @@ export default function ChatInput({
           )}
         </div>
 
-        {/* Microphone button - primary action */}
-        <button
-          onClick={handleMicToggle}
-          disabled={disabled || isProcessing}
-          className={cn(
-            "flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center",
-            "transition-all duration-300 ease-out",
-            "focus:outline-none focus-visible:ring-2 focus-visible:ring-kitchly-orange focus-visible:ring-offset-2",
-            isListening
-              ? "bg-red-500 text-white shadow-lg scale-110 mic-pulse"
-              : "bg-kitchly-orange text-white shadow-warm hover:shadow-glow hover:scale-105 active:scale-95",
-            isProcessing && "bg-warm-400 cursor-wait",
-            disabled && "opacity-50 cursor-not-allowed",
-          )}
-          title={isListening ? "Stop recording" : "Start recording"}
-        >
-          {isProcessing ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
-          ) : isListening ? (
-            <MicOff className="w-5 h-5" />
-          ) : (
-            <Mic className="w-5 h-5" />
-          )}
-        </button>
+        {/* TODO: Re-enable microphone button when ElevenLabs integration is fixed */}
       </div>
     </div>
   );

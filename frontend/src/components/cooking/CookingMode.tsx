@@ -3,8 +3,6 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
-  Volume2,
-  VolumeX,
   Timer,
   CheckCircle2,
   ChefHat,
@@ -13,7 +11,6 @@ import {
 } from "lucide-react";
 import { cn, formatTime } from "@/lib/utils";
 import type { ParsedRecipe } from "@/lib/utils";
-import { useVoice } from "@/hooks/useVoice";
 import Button from "@/components/ui/Button";
 
 interface CookingModeProps {
@@ -34,9 +31,8 @@ export default function CookingMode({
   const [showComplete, setShowComplete] = useState(false);
   const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const { isSpeaking, speak, stopSpeaking } = useVoice({
-    agentId,
-  });
+  // TODO: Re-enable voice when ElevenLabs integration is fixed
+  // const { isSpeaking, speak, stopSpeaking } = useVoice({ agentId });
 
   const totalSteps = recipe.instructions.length;
   const step = recipe.instructions[currentStep] || "";
@@ -122,13 +118,14 @@ export default function CookingMode({
     }
   };
 
-  const handleReadAloud = () => {
-    if (isSpeaking) {
-      stopSpeaking();
-    } else {
-      speak(`Step ${currentStep + 1}. ${step}`);
-    }
-  };
+  // TODO: Re-enable voice when ElevenLabs integration is fixed
+  // const handleReadAloud = () => {
+  //   if (isSpeaking) {
+  //     stopSpeaking();
+  //   } else {
+  //     speak(`Step ${currentStep + 1}. ${step}`);
+  //   }
+  // };
 
   // Keyboard navigation
   useEffect(() => {
@@ -203,21 +200,8 @@ export default function CookingMode({
           </p>
         </div>
 
-        <button
-          onClick={handleReadAloud}
-          className={cn(
-            "p-2 rounded-xl transition-colors",
-            isSpeaking
-              ? "text-kitchly-orange bg-kitchly-orange/20"
-              : "text-warm-400 hover:text-white hover:bg-warm-700",
-          )}
-        >
-          {isSpeaking ? (
-            <VolumeX className="w-5 h-5" />
-          ) : (
-            <Volume2 className="w-5 h-5" />
-          )}
-        </button>
+        {/* TODO: Re-enable read aloud button when ElevenLabs integration is fixed */}
+        <div className="w-9 h-9" />
       </div>
 
       {/* Progress bar */}

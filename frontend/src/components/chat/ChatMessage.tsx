@@ -1,7 +1,5 @@
 import React, { useState, useMemo } from "react";
 import {
-  Volume2,
-  VolumeX,
   Copy,
   Check,
 } from "lucide-react";
@@ -14,17 +12,15 @@ import kitIcon from "@/assets/images/k.svg";
 
 interface ChatMessageProps {
   message: ChatMessageType;
-  onSpeak?: (text: string) => void;
-  isSpeaking?: boolean;
-  onStopSpeaking?: () => void;
   onStartCooking?: (recipe: ParsedRecipe) => void;
+  // TODO: Re-enable voice when ElevenLabs integration is fixed
+  // onSpeak?: (text: string) => void;
+  // isSpeaking?: boolean;
+  // onStopSpeaking?: () => void;
 }
 
 export default function ChatMessage({
   message,
-  onSpeak,
-  isSpeaking,
-  onStopSpeaking,
   onStartCooking,
 }: ChatMessageProps) {
   const [copied, setCopied] = useState(false);
@@ -48,21 +44,21 @@ export default function ChatMessage({
     }
   };
 
-  const handleSpeak = () => {
-    if (isSpeaking) {
-      onStopSpeaking?.();
-    } else {
-      // Strip markdown for TTS
-      const plainText = message.content
-        .replace(/\*\*(.+?)\*\*/g, "$1")
-        .replace(/\*(.+?)\*/g, "$1")
-        .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-        .replace(/#{1,6}\s/g, "")
-        .replace(/[-*]\s/g, "")
-        .replace(/\d+\.\s/g, "");
-      onSpeak?.(plainText);
-    }
-  };
+  // TODO: Re-enable voice when ElevenLabs integration is fixed
+  // const handleSpeak = () => {
+  //   if (isSpeaking) {
+  //     onStopSpeaking?.();
+  //   } else {
+  //     const plainText = message.content
+  //       .replace(/\*\*(.+?)\*\*/g, "$1")
+  //       .replace(/\*(.+?)\*/g, "$1")
+  //       .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+  //       .replace(/#{1,6}\s/g, "")
+  //       .replace(/[-*]\s/g, "")
+  //       .replace(/\d+\.\s/g, "");
+  //     onSpeak?.(plainText);
+  //   }
+  // };
 
   // Extract Instacart links that aren't part of a recipe
   const standaloneInstacartLinks = useMemo(() => {
@@ -190,22 +186,7 @@ export default function ChatMessage({
           <div className="flex items-center gap-1 mt-1.5 opacity-0 group-hover:opacity-100 hover:opacity-100 transition-opacity duration-200"
                style={{ opacity: 1 }}
           >
-            {onSpeak && (
-              <button
-                onClick={handleSpeak}
-                className={cn(
-                  "p-1.5 rounded-lg text-warm-400 hover:text-kitchly-orange hover:bg-cream-200 transition-all duration-200",
-                  isSpeaking && "text-kitchly-orange bg-cream-200",
-                )}
-                title={isSpeaking ? "Stop speaking" : "Read aloud"}
-              >
-                {isSpeaking ? (
-                  <VolumeX className="w-3.5 h-3.5" />
-                ) : (
-                  <Volume2 className="w-3.5 h-3.5" />
-                )}
-              </button>
-            )}
+            {/* TODO: Re-enable read aloud button when ElevenLabs integration is fixed */}
             <button
               onClick={handleCopy}
               className="p-1.5 rounded-lg text-warm-400 hover:text-kitchly-orange hover:bg-cream-200 transition-all duration-200"

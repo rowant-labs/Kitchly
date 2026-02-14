@@ -2,6 +2,7 @@ import type { Plugin } from '@elizaos/core';
 import { createRecipeAction } from './actions/createRecipe.js';
 import { planMealsAction } from './actions/planMeals.js';
 import { cookAlongAction } from './actions/cookAlong.js';
+import { confirmAndShopAction } from './actions/confirmAndShop.js';
 import { kitchenProvider } from './providers/kitchenProvider.js';
 import { intentEvaluator } from './evaluators/intentEvaluator.js';
 import { InstacartService } from './services/instacartService.js';
@@ -33,7 +34,7 @@ export const kitchenPlugin: Plugin = {
     }
   },
 
-  actions: [createRecipeAction, planMealsAction, cookAlongAction],
+  actions: [createRecipeAction, planMealsAction, cookAlongAction, confirmAndShopAction],
   providers: [kitchenProvider],
   evaluators: [intentEvaluator],
   services: [InstacartService],
