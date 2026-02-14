@@ -77,7 +77,7 @@ export default function Home() {
               Try Again
             </Button>
             <p className="mt-4 text-xs text-warm-400 font-mono">
-              Expected: {import.meta.env.VITE_API_URL || "http://localhost:3000"}
+              Expected: {import.meta.env.VITE_API_URL || "/api"}
             </p>
           </div>
         </div>

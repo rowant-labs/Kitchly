@@ -90,7 +90,7 @@ export default function Header({ onClearChat }: HeaderProps) {
                 <div className="flex items-center justify-between px-3 py-2.5">
                   <span className="text-sm text-warm-600">API</span>
                   <span className="text-xs text-warm-400 font-mono bg-warm-100 px-2 py-0.5 rounded">
-                    {import.meta.env.VITE_API_URL || "localhost:3000"}
+                    {import.meta.env.VITE_API_URL || "/api"}
                   </span>
                 </div>
 
